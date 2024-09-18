@@ -6,7 +6,7 @@
     "types": "dist/index.d.ts",
     "type": "module",
     "bin": {
-        "directus-type-generator": "./dist/index.js"
+        "directus-sdk-typegen": "./dist/index.js"
     },
     "scripts": {
         "build": "tsc",
