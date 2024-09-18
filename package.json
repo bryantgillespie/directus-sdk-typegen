@@ -4,25 +4,23 @@
     "description": "CLI and library to generate TypeScript types from Directus collections for use with Directus SDK.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "type": "module",
     "bin": {
-        "directus-sdk-typegen": "./dist/index.js"
+      "directus-sdk-typegen": "./dist/index.js"
     },
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+      "dist",
+      "README.md",
+      "LICENSE"
     ],
     "scripts": {
-        "build": "tsc",
-        "start": "node dist/index.js"
+      "build": "tsc",
+      "start": "node dist/index.js"
     },
     "dependencies": {
-        "commander": "^8.3.0",
-        "dotenv": "^16.4.5"
+      "commander": "^8.3.0"
     },
     "devDependencies": {
-        "@types/node": "^16.11.12",
-        "typescript": "^4.5.4"
+      "@types/node": "^16.11.12",
+      "typescript": "^4.5.4"
     }
-}
+  }

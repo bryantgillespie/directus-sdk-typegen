@@ -7,17 +7,13 @@ settings:
 importers:
 
   .:
-    dependencies:
-      commander:
-        specifier: ^8.3.0
-        version: 8.3.0
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
     devDependencies:
       '@types/node':
         specifier: ^16.11.12
         version: 16.18.108
+      commander:
+        specifier: ^8.3.0
+        version: 8.3.0
       typescript:
         specifier: ^4.5.4
         version: 4.9.5
@@ -31,10 +27,6 @@ packages:
     resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
     engines: {node: '>= 12'}
 
-  dotenv@16.4.5:
-    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
-    engines: {node: '>=12'}
-
   typescript@4.9.5:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
     engines: {node: '>=4.2.0'}
@@ -45,7 +37,5 @@ snapshots:
   '@types/node@16.18.108': {}
 
   commander@8.3.0: {}
-
-  dotenv@16.4.5: {}
 
   typescript@4.9.5: {}

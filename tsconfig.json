@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
-      "target": "es2020",
-      "module": "esnext",
+      "target": "es2018",
+      "module": "commonjs",
       "moduleResolution": "node",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
       "outDir": "./dist",
       "rootDir": "./src",
       "strict": true,
-      "esModuleInterop": true,
       "allowJs": true,
       "resolveJsonModule": true,
       "declaration": true,
@@ -15,4 +16,8 @@
     "include": [
       "src/**/*"
     ],
+    "exclude": [
+      "node_modules",
+      "dist"
+    ]
   }

@@ -1,5 +1,5 @@
-import { ApiClient } from './api.js';
-import type { Collection, Field, Relation } from './types.js';
+import { ApiClient } from './api';
+import type { Collection, Field, Relation } from './types';
 
 export async function getCollections(api: ApiClient): Promise<Record<string, Collection>> {
 

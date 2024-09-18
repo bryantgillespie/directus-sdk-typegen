@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { ApiClient } from './api.js';
-import { getCollections } from './logic.js';
-import { pascalCase, singularize, generateJSDocComment, shouldIncludeField, determineFieldType } from './utils.js';
+import { ApiClient } from './api';
+import { getCollections } from './logic';
+import { pascalCase, singularize, generateJSDocComment, shouldIncludeField, determineFieldType } from './utils';
 
 export const DEFAULT_DIRECTUS_URL =  'http://localhost:8055';
 export const DEFAULT_OUTPUT_FILE = path.join('.', 'directus-schema.ts');
@@ -62,7 +62,6 @@ export async function generateDirectusTypes({
 
         return output;
 	} catch (error) {
-		console.error('Error generating Directus types:', error);
         throw error
 	}
 }

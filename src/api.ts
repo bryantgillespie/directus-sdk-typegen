@@ -25,7 +25,8 @@ export class ApiClient {
     async fetch(endpoint: string): Promise<any> {
       const response = await fetch(`${this.baseUrl}${endpoint}`, { headers: this.headers });
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const body = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, body: ${body}`);
       }
       return response.json();
     }
