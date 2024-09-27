@@ -2,7 +2,6 @@ import { ApiClient } from './api';
 import type { Collection, Field, Relation } from './types';
 
 export async function getCollections(api: ApiClient): Promise<Record<string, Collection>> {
-
 	const [collectionsData, fieldsData, relationsData] = await Promise.all([
 		api.fetch('/collections'),
 		api.fetch('/fields'),
@@ -12,7 +11,10 @@ export async function getCollections(api: ApiClient): Promise<Record<string, Col
 	const collections: Record<string, Collection> = {};
 
 	collectionsData.data.forEach((collection: Collection) => {
-		collections[collection.collection] = { ...collection, fields: [] };
+		// We want to skip over folders
+		if (collection.schema) {
+			collections[collection.collection] = { ...collection, fields: [] };
+		}
 	});
 
 	fieldsData.data.forEach((field: Field & { collection: string }) => {
@@ -25,27 +27,63 @@ export async function getCollections(api: ApiClient): Promise<Record<string, Col
 		const meta = relation.meta;
 
 		if (meta) {
-			updateFieldRelation(collections, meta.one_collection, meta.one_field, 'many', meta.many_collection);
-			updateFieldRelation(collections, meta.many_collection, meta.many_field, 'one', meta.one_collection);
+			if (meta.one_allowed_collections) {
+				// Handle many-to-any relation
+				updateFieldRelation({
+					collections,
+					collectionName: meta.many_collection,
+					relatedCollection: 'directus_collections',
+					fieldName: meta.many_field,
+					relationType: 'm2a',
+					allowedCollections: meta.one_allowed_collections,
+				});
+			} else {
+				// Handle one-to-many and many-to-one relations
+				updateFieldRelation({
+					collections,
+					collectionName: meta.one_collection,
+					fieldName: meta.one_field,
+					relationType: 'many',
+					relatedCollection: meta.many_collection,
+				});
+				updateFieldRelation({
+					collections,
+					collectionName: meta.many_collection,
+					fieldName: meta.many_field,
+					relationType: 'one',
+					relatedCollection: meta.one_collection,
+				});
+			}
 		}
 	});
 
 	return collections;
 }
 
-export function updateFieldRelation(
-	collections: Record<string, Collection>,
-	collectionName: string,
-	fieldName: string,
-	relationType: 'one' | 'many',
-	relatedCollection: string,
-): void {
+interface UpdateFieldRelationParams {
+	collections: Record<string, Collection>;
+	collectionName: string;
+	fieldName: string;
+	relationType: 'one' | 'many' | 'm2a';
+	relatedCollection?: string | string[];
+	allowedCollections?: string[];
+}
+
+export function updateFieldRelation({
+	collections,
+	collectionName,
+	fieldName,
+	relationType,
+	relatedCollection,
+	allowedCollections,
+}: UpdateFieldRelationParams): void {
 	const field = collections[collectionName]?.fields.find((field) => field.field === fieldName);
 
 	if (field) {
 		field.relation = {
 			type: relationType,
-			collection: relatedCollection,
+			collection: relatedCollection as string,
+			allowedCollections,
 		};
 	}
 }

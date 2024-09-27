@@ -18,13 +18,15 @@ export interface Field {
 		special?: string[];
 	};
 	relation?: {
-		type: 'one' | 'many';
+		type: 'one' | 'many' | 'm2a';
 		collection?: string;
+		allowedCollections?: string[];
 	};
 }
 
 export interface Collection {
 	collection: string;
+	schema?: object;
 	meta?: {
 		singleton?: boolean;
 	};
@@ -37,5 +39,6 @@ export interface Relation {
 		one_field: string;
 		many_collection: string;
 		many_field: string;
+		one_allowed_collections?: string[];
 	};
 }

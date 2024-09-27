@@ -1,4 +1,9 @@
-export const interfacesWithChoices = ['select-dropdown', 'select-multiple', 'select-multiple-dropdown', 'select-radio'];
+export const interfacesWithChoices = [
+	'select-dropdown',
+	'select-multiple',
+	'select-multiple-dropdown',
+	'select-radio',
+];
 
 export function pascalCase(value: string): string {
 	return value
@@ -8,6 +13,8 @@ export function pascalCase(value: string): string {
 }
 
 export function singularize(word: string): string {
+	if (!word || typeof word !== 'string') return '';
+
 	if (word.endsWith('ies') && word.length > 3) {
 		return word.slice(0, -3) + 'y';
 	}
@@ -48,7 +55,9 @@ export function shouldIncludeField(field: any): boolean {
 
 	const isNonRelationalAlias =
 		field.type === 'alias' &&
-		!field.meta?.special?.some((special: string) => ['m2o', 'o2m', 'm2m', 'm2a'].includes(special));
+		!field.meta?.special?.some((special: string) =>
+			['m2o', 'o2m', 'm2m', 'm2a'].includes(special),
+		);
 
 	const isGroup = field.meta?.special?.includes('group');
 
@@ -61,6 +70,16 @@ export function determineFieldType(field: any): string {
 
 		if (field.relation.type === 'many') {
 			return `${relatedTypeName}[] | string[]`;
+		} else if (field.relation.type === 'm2a') {
+			// Handle many-to-any relations
+			const allowedCollections = field.relation.allowedCollections;
+			if (Array.isArray(allowedCollections) && allowedCollections.length > 0) {
+				const unionTypes = allowedCollections
+					.map((collection) => `${pascalCase(singularize(collection))}`)
+					.join(' | ');
+				return `${unionTypes} | string`;
+			}
+			return 'any | string';
 		} else {
 			return `${relatedTypeName} | string`;
 		}

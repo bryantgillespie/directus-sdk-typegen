@@ -2,9 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ApiClient } from './api';
 import { getCollections } from './logic';
-import { pascalCase, singularize, generateJSDocComment, shouldIncludeField, determineFieldType } from './utils';
+import {
+	pascalCase,
+	singularize,
+	generateJSDocComment,
+	shouldIncludeField,
+	determineFieldType,
+} from './utils';
 
-export const DEFAULT_DIRECTUS_URL =  'http://localhost:8055';
+export const DEFAULT_DIRECTUS_URL = 'http://localhost:8055';
 export const DEFAULT_OUTPUT_FILE = path.join('.', 'directus-schema.ts');
 
 /**
@@ -17,18 +23,20 @@ export const DEFAULT_OUTPUT_FILE = path.join('.', 'directus-schema.ts');
  * @returns {Promise<string>} - A promise that resolves to the generated TypeScript types.
  */
 export async function generateDirectusTypes({
-    outputPath = DEFAULT_OUTPUT_FILE,
-    directusUrl = DEFAULT_DIRECTUS_URL,
-    directusToken = 'admin'
+	outputPath = DEFAULT_OUTPUT_FILE,
+	directusUrl = DEFAULT_DIRECTUS_URL,
+	directusToken = 'admin',
 }): Promise<string> {
 	try {
-        const api = new ApiClient(directusUrl, directusToken);
+		const api = new ApiClient(directusUrl, directusToken);
 		const collections = await getCollections(api);
 		let output = '';
 
 		Object.values(collections).forEach((collection) => {
 			const isSingleton = collection.meta?.singleton;
-			const typeName = pascalCase(isSingleton ? collection.collection : singularize(collection.collection));
+			const typeName = pascalCase(
+				isSingleton ? collection.collection : singularize(collection.collection),
+			);
 
 			output += `export interface ${typeName} {\n`;
 
@@ -37,9 +45,13 @@ export async function generateDirectusTypes({
 				const fieldType = determineFieldType(field);
 				const isRequired = field.schema?.is_primary_key || field.meta?.required;
 				const isNullable = field.schema?.is_nullable && !isRequired;
-				const fieldName = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(field.field) ? field.field : `'${field.field}'`;
+				const fieldName = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(field.field)
+					? field.field
+					: `'${field.field}'`;
 				const typeAnnotation = `${fieldType}${isNullable ? ' | null' : ''}`;
-				output += `${jsDocComment}\t${fieldName}${isRequired ? '' : '?'}: ${typeAnnotation};\n`;
+				output += `${jsDocComment}\t${fieldName}${
+					isRequired ? '' : '?'
+				}: ${typeAnnotation};\n`;
 			});
 
 			output += '}\n\n';
@@ -49,19 +61,21 @@ export async function generateDirectusTypes({
 
 		Object.values(collections).forEach((collection) => {
 			const isSingleton = collection.meta?.singleton;
-			const typeName = pascalCase(isSingleton ? collection.collection : singularize(collection.collection));
+			const typeName = pascalCase(
+				isSingleton ? collection.collection : singularize(collection.collection),
+			);
 			output += `\t${collection.collection}: ${typeName}${isSingleton ? '' : '[]'};\n`;
 		});
 
 		output += '}\n';
 
-        if (outputPath) {
-            fs.writeFileSync(outputPath, output);
-            console.log(`Directus types generated successfully at ${outputPath}!`);
-        }
+		if (outputPath) {
+			fs.writeFileSync(outputPath, output);
+			console.log(`Directus types generated successfully at ${outputPath}!`);
+		}
 
-        return output;
+		return output;
 	} catch (error) {
-        throw error
+		throw error;
 	}
 }
