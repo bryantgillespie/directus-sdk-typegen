@@ -148,13 +148,21 @@ export function determineFieldType(field: any): string {
 	return 'string';
 }
 
-export function escapeStringLiteral(str: string): string {
-	if (!str) {
-		return 'null';
+export function escapeStringLiteral(value: unknown): string {
+	// Handle non-string values
+	if (typeof value !== 'string') {
+		if (value === undefined || value === null) {
+			return 'null';
+		}
+		if (typeof value === 'number') {
+			return value.toString();
+		}
+		// For other types, convert to JSON string
+		return JSON.stringify(value);
 	}
 
 	// Escape backslashes and single quotes
-	const escaped = str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+	const escaped = value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
 	// Check if the string contains any special characters
 	if (/^[a-zA-Z0-9_]+$/.test(escaped)) {
