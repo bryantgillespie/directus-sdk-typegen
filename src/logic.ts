@@ -1,5 +1,5 @@
 import { ApiClient } from './api';
-import type { Collection, Field, Relation } from './types';
+import type { Collection, Field, Relation, TranslationRelation } from './types';
 
 export async function getCollections(api: ApiClient): Promise<Record<string, Collection>> {
 	const [collectionsData, fieldsData, relationsData] = await Promise.all([
@@ -16,6 +16,24 @@ export async function getCollections(api: ApiClient): Promise<Record<string, Col
 			collections[collection.collection] = { ...collection, fields: [] };
 		}
 	});
+
+	const translationRelations: TranslationRelation[] = relationsData.data
+		.filter((relation: Relation) => {
+			const oneField = fieldsData.data.find(
+				(field: Field & { collection: string }) =>
+					field.collection === relation.meta.one_collection &&
+					field.field === relation.meta.one_field &&
+					field.meta?.special?.includes('translations'),
+			);
+			return !!oneField;
+		})
+		.map((relation: Relation) => ({
+			oneCollection: relation.meta.one_collection,
+			oneField: relation.meta.one_field,
+			manyCollection: relation.meta.many_collection,
+			manyField: relation.meta.many_field,
+			junctionField: relation.meta.junction_field ?? '',
+		}));
 
 	fieldsData.data.forEach((field: Field & { collection: string }) => {
 		if (collections[field.collection]) {
@@ -52,6 +70,30 @@ export async function getCollections(api: ApiClient): Promise<Record<string, Col
 					fieldName: meta.many_field,
 					relationType: 'one',
 					relatedCollection: meta.one_collection,
+				});
+			}
+		}
+	});
+
+	translationRelations.forEach((relation) => {
+		const mainCollection = collections[relation.oneCollection];
+		if (mainCollection) {
+			const existingTranslationField = mainCollection.fields.find((field) =>
+				field.meta?.special?.includes('translations'),
+			);
+
+			if (!existingTranslationField) {
+				mainCollection.fields.push({
+					field: 'translations',
+					type: 'alias',
+					meta: {
+						special: ['o2m'],
+						interface: 'translations',
+					},
+					relation: {
+						type: 'many',
+						collection: relation.manyCollection,
+					},
 				});
 			}
 		}

@@ -56,7 +56,7 @@ export function shouldIncludeField(field: any): boolean {
 	const isNonRelationalAlias =
 		field.type === 'alias' &&
 		!field.meta?.special?.some((special: string) =>
-			['m2o', 'o2m', 'm2m', 'm2a'].includes(special),
+			['m2o', 'o2m', 'm2m', 'm2a', 'translations'].includes(special),
 		);
 
 	const isGroup = field.meta?.special?.includes('group');
@@ -65,6 +65,15 @@ export function shouldIncludeField(field: any): boolean {
 }
 
 export function determineFieldType(field: any): string {
+	// Handle translations interface first
+	if (field.meta?.special?.includes('translations')) {
+		const translationsCollection = field.relation?.collection;
+		if (translationsCollection) {
+			const translationType = pascalCase(singularize(translationsCollection));
+			return `${translationType}[] | null`;
+		}
+	}
+
 	if (field.relation && field.relation.collection) {
 		const relatedTypeName = pascalCase(singularize(field.relation.collection));
 

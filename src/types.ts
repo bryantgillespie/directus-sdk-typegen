@@ -40,5 +40,14 @@ export interface Relation {
 		many_collection: string;
 		many_field: string;
 		one_allowed_collections?: string[];
+		junction_field?: string;
 	};
+}
+
+export interface TranslationRelation {
+	oneCollection: string;
+	oneField: string;
+	manyCollection: string;
+	manyField: string;
+	junctionField?: string;
 }
