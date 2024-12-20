@@ -1,11 +1,11 @@
 {
 	"name": "directus-sdk-typegen",
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"description": "CLI and library to generate TypeScript types from Directus collections for use with Directus SDK.",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"bin": {
-		"directus-sdk-typegen": "./dist/index.js"
+		"directus-sdk-typegen": "dist/index.js"
 	},
 	"files": [
 		"dist",
