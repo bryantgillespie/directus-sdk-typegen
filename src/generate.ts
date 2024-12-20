@@ -11,7 +11,6 @@ import {
 } from './utils';
 
 export const DEFAULT_DIRECTUS_URL = 'http://localhost:8055';
-export const DEFAULT_OUTPUT_FILE = path.join('.', 'directus-schema.ts');
 
 /**
  * Generates TypeScript types from Directus collections.
@@ -23,7 +22,7 @@ export const DEFAULT_OUTPUT_FILE = path.join('.', 'directus-schema.ts');
  * @returns {Promise<string>} - A promise that resolves to the generated TypeScript types.
  */
 export async function generateDirectusTypes({
-	outputPath = DEFAULT_OUTPUT_FILE,
+	outputPath = '',
 	directusUrl = DEFAULT_DIRECTUS_URL,
 	directusToken = 'admin',
 }): Promise<string> {
