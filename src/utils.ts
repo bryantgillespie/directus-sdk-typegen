@@ -56,7 +56,7 @@ export function shouldIncludeField(field: any): boolean {
 	const isNonRelationalAlias =
 		field.type === 'alias' &&
 		!field.meta?.special?.some((special: string) =>
-			['m2o', 'o2m', 'm2m', 'm2a', 'translations'].includes(special),
+			['m2o', 'o2m', 'm2m', 'm2a', 'translations', 'files'].includes(special),
 		);
 
 	const isGroup = field.meta?.special?.includes('group');
@@ -72,6 +72,10 @@ export function determineFieldType(field: any): string {
 			const translationType = pascalCase(singularize(translationsCollection));
 			return `${translationType}[] | null`;
 		}
+	}
+	// Handle files interface
+	if (field.meta?.special?.includes('files')) {
+		return 'DirectusFile[] | string[] | null';
 	}
 
 	if (field.relation && field.relation.collection) {
