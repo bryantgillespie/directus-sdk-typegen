@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { ApiClient } from './api';
 import { getCollections } from './logic';
 import {
