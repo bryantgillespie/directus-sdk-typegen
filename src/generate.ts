@@ -65,7 +65,11 @@ export async function generateDirectusTypes({
 			output += `\t${collection.collection}: ${typeName}${isSingleton ? '' : '[]'};\n`;
 		});
 
-		output += '}\n';
+		output += '}\n\n';
+
+		output += `export enum CollectionNames {\n${Object.values(collections)
+			.map((collection) => `\t${collection.collection} = '${collection.collection}'`)
+			.join(',\n')}\n}`;
 
 		if (outputPath) {
 			fs.writeFileSync(outputPath, output);
