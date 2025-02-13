@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { ApiClient } from './api';
 import { getCollections } from './logic';
 import { isSEOField, seoOutput } from './extensions/seo-plugin';
@@ -77,7 +76,11 @@ export async function generateDirectusTypes({
 			output += `\t${collection.collection}: ${typeName}${isSingleton ? '' : '[]'};\n`;
 		});
 
-		output += '}\n';
+		output += '}\n\n';
+
+		output += `export enum CollectionNames {\n${Object.values(collections)
+			.map((collection) => `\t${collection.collection} = '${collection.collection}'`)
+			.join(',\n')}\n}`;
 
 		if (outputPath) {
 			fs.writeFileSync(outputPath, output);
