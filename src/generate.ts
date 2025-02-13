@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ApiClient } from './api';
 import { getCollections } from './logic';
+import { isSEOField, seoOutput } from './extensions/seo-plugin';
 import {
 	pascalCase,
 	singularize,
@@ -30,6 +31,16 @@ export async function generateDirectusTypes({
 		const api = new ApiClient(directusUrl, directusToken);
 		const collections = await getCollections(api);
 		let output = '';
+
+		// Include extension types if they exist
+		// SEO Plugin Support
+		const hasSEOField = Object.values(collections).some((collection) =>
+			collection.fields.some((field) => isSEOField(field)),
+		);
+
+		if (hasSEOField) {
+			output += seoOutput;
+		}
 
 		Object.values(collections).forEach((collection) => {
 			const isSingleton = collection.meta?.singleton;

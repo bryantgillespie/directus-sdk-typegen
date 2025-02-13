@@ -1,3 +1,5 @@
+import { isSEOField, seoTypeName } from './extensions/seo-plugin';
+
 export const interfacesWithChoices = [
 	'select-dropdown',
 	'select-multiple',
@@ -65,6 +67,11 @@ export function shouldIncludeField(field: any): boolean {
 }
 
 export function determineFieldType(field: any): string {
+	// Handle extensions like SEO type
+	if (isSEOField(field)) {
+		return seoTypeName;
+	}
+
 	// Handle translations interface first
 	if (field.meta?.special?.includes('translations')) {
 		const translationsCollection = field.relation?.collection;
