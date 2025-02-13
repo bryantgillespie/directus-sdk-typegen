@@ -1,7 +1,5 @@
 # Directus SDK Types Generator
 
-🚧 This is currently in development and the generated types are not perfect. 🚧
-
 Opinionated CLI tool and library to generate TypeScript types from Directus collections to use with the Directus SDK.
 
 Generates the individual interfaces for the Directus collections and a `Schema` type that collects all the interfaces together for use with the Directus SDK.
