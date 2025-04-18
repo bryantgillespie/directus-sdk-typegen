@@ -41,7 +41,7 @@ export async function generateDirectusTypes({
 			output += seoOutput;
 		}
 
-		Object.values(collections).forEach((collection) => {
+		for (const collection of Object.values(collections)) {
 			const isSingleton = collection.meta?.singleton;
 			const typeName = pascalCase(
 				isSingleton ? collection.collection : singularize(collection.collection),
@@ -49,7 +49,7 @@ export async function generateDirectusTypes({
 
 			output += `export interface ${typeName} {\n`;
 
-			collection.fields.filter(shouldIncludeField).forEach((field) => {
+			for (const field of collection.fields.filter(shouldIncludeField)) {
 				const jsDocComment = generateJSDocComment(field);
 				const fieldType = determineFieldType(field);
 				const isRequired = field.schema?.is_primary_key || field.meta?.required;
@@ -61,20 +61,20 @@ export async function generateDirectusTypes({
 				output += `${jsDocComment}\t${fieldName}${
 					isRequired ? '' : '?'
 				}: ${typeAnnotation};\n`;
-			});
+			}
 
 			output += '}\n\n';
-		});
+		}
 
 		output += 'export interface Schema {\n';
 
-		Object.values(collections).forEach((collection) => {
+		for (const collection of Object.values(collections)) {
 			const isSingleton = collection.meta?.singleton;
 			const typeName = pascalCase(
 				isSingleton ? collection.collection : singularize(collection.collection),
 			);
 			output += `\t${collection.collection}: ${typeName}${isSingleton ? '' : '[]'};\n`;
-		});
+		}
 
 		output += '}\n\n';
 

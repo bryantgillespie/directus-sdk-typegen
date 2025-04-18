@@ -1,4 +1,4 @@
-import { ApiClient } from './api';
+import type { ApiClient } from './api';
 import type { Collection, Field, Relation, TranslationRelation } from './types';
 
 export async function getCollections(api: ApiClient): Promise<Record<string, Collection>> {
@@ -10,12 +10,12 @@ export async function getCollections(api: ApiClient): Promise<Record<string, Col
 
 	const collections: Record<string, Collection> = {};
 
-	collectionsData.data.forEach((collection: Collection) => {
+	for (const collection of collectionsData.data) {
 		// We want to skip over folders
 		if (collection.schema) {
 			collections[collection.collection] = { ...collection, fields: [] };
 		}
-	});
+	}
 
 	const translationRelations: TranslationRelation[] = relationsData.data
 		.filter((relation: Relation) => {
@@ -28,20 +28,20 @@ export async function getCollections(api: ApiClient): Promise<Record<string, Col
 			return !!oneField;
 		})
 		.map((relation: Relation) => ({
-			oneCollection: relation.meta.one_collection,
-			oneField: relation.meta.one_field,
-			manyCollection: relation.meta.many_collection,
-			manyField: relation.meta.many_field,
-			junctionField: relation.meta.junction_field ?? '',
+			oneCollection: relation.meta?.one_collection,
+			oneField: relation.meta?.one_field,
+			manyCollection: relation.meta?.many_collection,
+			manyField: relation.meta?.many_field,
+			junctionField: relation.meta?.junction_field ?? '',
 		}));
 
-	fieldsData.data.forEach((field: Field & { collection: string }) => {
+	for (const field of fieldsData.data) {
 		if (collections[field.collection]) {
 			collections[field.collection]?.fields.push(field);
 		}
-	});
+	}
 
-	relationsData.data.forEach((relation: Relation) => {
+	for (const relation of relationsData.data) {
 		const meta = relation.meta;
 
 		if (meta) {
@@ -73,9 +73,9 @@ export async function getCollections(api: ApiClient): Promise<Record<string, Col
 				});
 			}
 		}
-	});
+	}
 
-	translationRelations.forEach((relation) => {
+	for (const relation of translationRelations) {
 		const mainCollection = collections[relation.oneCollection];
 		if (mainCollection) {
 			const existingTranslationField = mainCollection.fields.find((field) =>
@@ -97,7 +97,7 @@ export async function getCollections(api: ApiClient): Promise<Record<string, Col
 				});
 			}
 		}
-	});
+	}
 
 	return collections;
 }

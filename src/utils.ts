@@ -45,7 +45,13 @@ export function generateJSDocComment(field: any): string {
 		comments.push(`@description ${field.meta.note}`);
 	}
 
-	if (field.schema?.is_primary_key || field.meta?.required) {
+	// Handle primary key
+	if (field.schema?.is_primary_key) {
+		comments.push('@primaryKey');
+	}
+
+	// Handle required
+	if (field.meta?.required) {
 		comments.push('@required');
 	}
 
@@ -85,12 +91,15 @@ export function determineFieldType(field: any): string {
 		return 'DirectusFile[] | string[] | null';
 	}
 
-	if (field.relation && field.relation.collection) {
+	if (field.relation?.collection) {
 		const relatedTypeName = pascalCase(singularize(field.relation.collection));
 
 		if (field.relation.type === 'many') {
+			// Handle one-to-many relations
 			return `${relatedTypeName}[] | string[]`;
-		} else if (field.relation.type === 'm2a') {
+		}
+
+		if (field.relation.type === 'm2a') {
 			// Handle many-to-any relations
 			const allowedCollections = field.relation.allowedCollections;
 			if (Array.isArray(allowedCollections) && allowedCollections.length > 0) {
@@ -100,34 +109,31 @@ export function determineFieldType(field: any): string {
 				return `${unionTypes} | string`;
 			}
 			return 'any | string';
-		} else {
-			return `${relatedTypeName} | string`;
 		}
+
+		return `${relatedTypeName} | string`;
 	}
 
-	if (interfacesWithChoices.includes(field.meta?.interface)) {
-		const choices = field.meta.options?.choices;
+	// Instead of checking against interfacesWithChoices (which would limit extension interfaces), check against the choices array
+	if (Array.isArray(field.meta?.options?.choices) && field.meta?.options?.choices.length > 0) {
+		const choiceValues = field.meta?.options?.choices.map((choice: any) => {
+			return choice.value === null ? 'null' : escapeStringLiteral(choice.value);
+		});
 
-		if (Array.isArray(choices) && choices.length > 0) {
-			const choiceValues = choices.map((choice: any) => {
-				return choice.value === null ? 'null' : escapeStringLiteral(choice.value);
-			});
+		// Remove duplicate values while preserving order
+		const uniqueChoices = [...new Set(choiceValues)];
 
-			// Remove duplicate values while preserving order
-			const uniqueChoices = [...new Set(choiceValues)];
+		const unionOfChoices = uniqueChoices.join(' | ');
 
-			const unionOfChoices = uniqueChoices.join(' | ');
-
-			if (['select-multiple', 'select-multiple-dropdown'].includes(field.meta.interface)) {
-				return `Array<${unionOfChoices}>`;
-			}
-
-			return unionOfChoices;
+		if (['select-multiple', 'select-multiple-dropdown'].includes(field.meta.interface)) {
+			return `Array<${unionOfChoices}>`;
 		}
+
+		return unionOfChoices;
 	}
 
 	if (field.type === 'json') {
-		if (field.meta?.interface === 'list') {
+		if (field.meta?.options?.fields) {
 			const nestedFields = field.meta.options?.fields;
 
 			if (Array.isArray(nestedFields) && nestedFields.length > 0) {
@@ -150,7 +156,7 @@ export function determineFieldType(field: any): string {
 			return 'string[]';
 		}
 
-		return 'any';
+		return "'json'";
 	}
 
 	if (field.type === 'csv') {
@@ -181,15 +187,21 @@ export function escapeStringLiteral(value: unknown): string {
 		return JSON.stringify(value);
 	}
 
-	// Escape backslashes and single quotes
-	const escaped = value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+	// Escape backslashes universally
+	const backslashEscaped = value.replace(/\\/g, '\\\\');
 
-	// Check if the string contains any special characters
-	if (/^[a-zA-Z0-9_]+$/.test(escaped)) {
-		// If it's a simple string, just wrap it in single quotes
-		return `'${escaped}'`;
-	} else {
-		// For complex strings, use a template literal string
-		return `\`${escaped.replace(/`/g, '\\`')}\``;
+	// Check if the string contains any special characters that require template literal
+	// or if it's simple enough for single quotes
+	if (/^[a-zA-Z0-9_]+$/.test(backslashEscaped)) {
+		// If it's a simple string, escape single quotes and wrap it in single quotes
+		const singleQuoteEscaped = backslashEscaped.replace(/\'/g, "\\'");
+		return `'${singleQuoteEscaped}'`;
 	}
+
+	// For complex strings, use a template literal string, escaping only backticks and ${ sequences
+	// Single quotes do not need escaping here.
+	const templateLiteralEscaped = backslashEscaped
+		.replace(/`/g, '\\`') // Escape backticks
+		.replace(/\$\{/g, '\\${'); // Escape ${ to prevent interpolation
+	return `\`${templateLiteralEscaped}\``;
 }
