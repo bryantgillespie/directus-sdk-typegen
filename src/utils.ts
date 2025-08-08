@@ -86,10 +86,6 @@ export function determineFieldType(field: any): string {
 			return `${translationType}[] | null`;
 		}
 	}
-	// Handle files interface
-	if (field.meta?.special?.includes('files')) {
-		return 'DirectusFile[] | string[] | null';
-	}
 
 	if (field.relation?.collection) {
 		const relatedTypeName = pascalCase(singularize(field.relation.collection));
