@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.1] - 2025-08-19
+
+### Changed
+- Fixed incorrect type for Files interface (M2M relationship)
+
 ## [0.2.0] - 2025-04-18
 
 ### Changed
